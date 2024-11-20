@@ -8,6 +8,9 @@ const botoes = document.querySelectorAll('.app__card-button')
 const startPauseBt = document.querySelector('#start-pause')
 const musicaFocoInput = document.querySelector('#alternar-musica')
 const musica = new Audio('/sons/luna-rise-part-one.mp3')
+const barulhoBeep = new Audio('/sons/beep.mp3')
+const barulhoPlay = new Audio('/sons/play.wav')
+const barulhoPause = new Audio('/sons/pause.mp3')
 
 let tempoDecorridoEmSegundos = 5
 let intervaloId = null
@@ -17,8 +20,10 @@ musica.loop = true
 musicaFocoInput.addEventListener('change', () => {
     if(musica.paused) {
         musica.play()
+        barulhoPlay.play()
     } else {
         musica.pause()
+        barulhoPause.play()
     }
 })
 
@@ -63,18 +68,34 @@ function alterarContexto(contexto) {
             `
             break;
         default:
-            break
+            break;
     }
 }
 
 const contagemRegressiva = () => {
-    //iniciar()
-    tempoDecorridoEmSegundos -= 1
-    console.log('Temporizador: ' + tempoDecorridoEmSegundos)
+    if (tempoDecorridoEmSegundos <= 0) {
+        zerar();
+        barulhoBeep.play();
+        alert('Tempo finalizado!');
+        barulhoBeep.pause();
+        barulhoBeep.currentTime = 0;
+        return;
+    }
+    tempoDecorridoEmSegundos -= 1;
+    console.log('Temporizador: ' + tempoDecorridoEmSegundos);
+};
+
+startPauseBt.addEventListener('click', iniciarOuPausar);
+
+function iniciarOuPausar() {
+    if(intervaloId){
+        zerar();
+        return;
+    }
+    intervaloId = setInterval(contagemRegressiva, 1000)
 }
 
-startPauseBt.addEventListener('click', contagemRegressiva)
-
-function iniciar() {
-    intervaloId = setInterval(contagemRegressiva, 1000)
+function zerar() {
+    clearInterval(intervaloId);
+    intervaloId = null;
 }
